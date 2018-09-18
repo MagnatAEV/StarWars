@@ -16,6 +16,7 @@ public class MenuScreen extends Base2DScreen {
 
     SpriteBatch batch;
     Texture img;
+    Texture background;
     Vector2 posCur;
     Vector2 posEnd;
     Vector2 v;
@@ -28,6 +29,7 @@ public class MenuScreen extends Base2DScreen {
         super.show();
         batch = new SpriteBatch();
         img = new Texture("badlogic.jpg");
+        background = new Texture("space_background.jpg");
         posCur = new Vector2(0f,0f);
         posEnd = new Vector2(posCur);
         v = new Vector2(0f,0f);
@@ -41,6 +43,7 @@ public class MenuScreen extends Base2DScreen {
         if (posCur.cpy().sub(posEnd).len() <= 1) v.set(0,0);
         posCur.add(v);
         batch.begin();
+        batch.draw(background,0, 0);
         batch.draw(img,posCur.x, posCur.y);
         batch.end();
     }
