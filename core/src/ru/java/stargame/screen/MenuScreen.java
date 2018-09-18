@@ -57,7 +57,7 @@ public class MenuScreen extends Base2DScreen {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         screenY = Gdx.graphics.getHeight() - screenY;
         posEnd.set((float) screenX, (float) screenY);
-        v = posEnd.cpy().sub(posCur).scl(0.01f);
+        v = posEnd.cpy().sub(posCur).scl(0.015f);
         return true;
     }
 }
