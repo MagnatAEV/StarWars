@@ -19,7 +19,6 @@ public class MenuScreen extends Base2DScreen {
     Vector2 posCur;
     Vector2 posEnd;
     Vector2 v;
-
     public MenuScreen(Game game) {
         super(game);
     }
@@ -42,7 +41,7 @@ public class MenuScreen extends Base2DScreen {
         if (posCur.cpy().sub(posEnd).len() <= 1) v.set(0,0);
         posCur.add(v);
         batch.begin();
-        batch.draw(img,posCur.x,posCur.y);
+        batch.draw(img,posCur.x, posCur.y);
         batch.end();
     }
 
@@ -57,7 +56,7 @@ public class MenuScreen extends Base2DScreen {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         screenY = Gdx.graphics.getHeight() - screenY;
         posEnd.set((float) screenX, (float) screenY);
-        v = posEnd.cpy().sub(posCur).scl(0.015f);
+        v = posEnd.cpy().sub(posCur).scl(0.011f);
         return true;
     }
 }
