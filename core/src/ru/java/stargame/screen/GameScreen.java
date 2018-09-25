@@ -1,5 +1,4 @@
 package ru.java.stargame.screen;
-
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -8,29 +7,27 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
-import ru.java.stargame.base.ActionListener;
 import ru.java.stargame.base.Base2DScreen;
 import ru.java.stargame.math.Rect;
 import ru.java.stargame.sprites.Background;
-import ru.java.stargame.sprites.ButtonExit;
-import ru.java.stargame.sprites.ButtonPlay;
+import ru.java.stargame.sprites.BattleCruser;
 import ru.java.stargame.sprites.Star;
 
 
-public class MenuScreen extends Base2DScreen implements ActionListener {
+public class GameScreen extends Base2DScreen {
 
-    private static final int STAR_COUNT = 256;
+    private static final int STAR_COUNT = 64;
 
     Background background;
     Texture bg;
     TextureAtlas atlas;
 
-    ButtonExit buttonExit;
-    ButtonPlay buttonPlay;
+    BattleCruser battleCruser;
 
     Star[] star;
 
-    public MenuScreen(Game game) {
+    public GameScreen(Game game) {
+
         super(game);
     }
 
@@ -39,20 +36,24 @@ public class MenuScreen extends Base2DScreen implements ActionListener {
         super.show();
         bg = new Texture("space_background.jpg");
         background = new Background(new TextureRegion(bg));
-        atlas = new TextureAtlas("textures/menuAtlas.tpack");
-        buttonExit = new ButtonExit(atlas, this);
-        buttonPlay = new ButtonPlay(atlas, this);
+        atlas = new TextureAtlas("textures/mainAtlas.tpack");
         star = new Star[STAR_COUNT];
         for (int i = 0; i < star.length; i++) {
             star[i] = new Star(atlas);
         }
+        TextureRegion region = new TextureRegion(atlas.findRegion("main_ship"));
+        int halfWidth = region.getRegionWidth()/2;
+        int height = region.getRegionHeight();
+        region = new TextureRegion(region, 0,0, halfWidth, height);
+        battleCruser = new BattleCruser(atlas, region, 0.2f);
     }
-
 
     @Override
     public void render(float delta) {
         super.render(delta);
         update(delta);
+        checkCollisions();
+        deleteAllDestroyed();
         draw();
     }
 
@@ -60,6 +61,15 @@ public class MenuScreen extends Base2DScreen implements ActionListener {
         for (int i = 0; i < star.length; i++) {
             star[i].update(delta);
         }
+        battleCruser.update();
+    }
+
+    public void checkCollisions() {
+
+    }
+
+    public void deleteAllDestroyed() {
+
     }
 
     public void draw() {
@@ -70,20 +80,19 @@ public class MenuScreen extends Base2DScreen implements ActionListener {
         for (int i = 0; i < star.length; i++) {
             star[i].draw(batch);
         }
-        buttonExit.draw(batch);
-        buttonPlay.draw(batch);
+        battleCruser.draw(batch);
         batch.end();
     }
 
-
     @Override
     protected void resize(Rect worldBounds) {
+        super.resize(worldBounds);
         background.resize(worldBounds);
+
         for (int i = 0; i < star.length; i++) {
             star[i].resize(worldBounds);
         }
-        buttonExit.resize(worldBounds);
-        buttonPlay.resize(worldBounds);
+        battleCruser.resize(worldBounds);
     }
 
     @Override
@@ -95,25 +104,20 @@ public class MenuScreen extends Base2DScreen implements ActionListener {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        buttonExit.touchDown(touch, pointer);
-        buttonPlay.touchDown(touch, pointer);
-        return super.touchDown(touch, pointer);
+        battleCruser.touchDown(touch, pointer);
+        return true;
     }
+
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-        buttonExit.touchUp(touch, pointer);
-        buttonPlay.touchUp(touch, pointer);
-        return super.touchUp(touch, pointer);
+        battleCruser.touchUp(touch, pointer);
+        return true;
     }
 
     @Override
-    public void actionPerformed(Object src) {
-        if (src == buttonExit) {
-            Gdx.app.exit();
-        } else if (src == buttonPlay) {
-            game.setScreen(new GameScreen(game));
-        }
+    public boolean touchDragged(Vector2 touch, int pointer) {
+        battleCruser.touchDragged(touch, pointer);
+        return true;
     }
 }
-

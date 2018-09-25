@@ -24,13 +24,12 @@ public class Sprite extends Rect {
 
     private int frame;
 
-    public Sprite(TextureRegion[] regions) {
-        if (regions == null)
+    public Sprite(TextureRegion region) {
+        if (region == null)
             throw new NullPointerException("region == null");
         else {
-            int len = regions.length;
-            this.regions = new TextureRegion[len];
-            System.arraycopy(regions,0,this.regions,0,len);
+            regions = new TextureRegion[1];
+            regions[0] = region;
         }
     }
 
@@ -60,9 +59,8 @@ public class Sprite extends Rect {
         return false;
     }
 
-    public boolean update(float delta) {
+    public void update(float delta) {
 
-        return false;
     }
 
     public float getAngle() {
@@ -83,6 +81,14 @@ public class Sprite extends Rect {
 
     public boolean touchUp(Vector2 touch, int pointer) {
 
+        return false;
+    }
+
+    public void touchMove(Vector2 touch){
+
+    }
+
+    public boolean touchDragged(Vector2 touch, int pointer){
         return false;
     }
 
