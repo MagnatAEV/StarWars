@@ -20,7 +20,7 @@ public class MainShip extends Sprite {
 
     private Vector2 v0 = new Vector2(0.5f, 0f);
     private Vector2 v = new Vector2();
-    private Vector2 bulletV = new Vector2(0, 0.9f);
+    private Vector2 bulletV = new Vector2(0, 0.92f);
 
     private boolean pressedLeft;
     private boolean pressedRight;
@@ -164,7 +164,7 @@ public class MainShip extends Sprite {
 
     }
 
-    
+
     public void  dispose(){
         soundShoot.dispose();
         backgorundMusic.dispose();
