@@ -9,8 +9,9 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.java.stargame.base.Base2DScreen;
 import ru.java.stargame.math.Rect;
+import ru.java.stargame.pool.BulletPool;
 import ru.java.stargame.sprites.Background;
-import ru.java.stargame.sprites.BattleCruser;
+import ru.java.stargame.sprites.MainShip;
 import ru.java.stargame.sprites.Star;
 
 
@@ -22,30 +23,29 @@ public class GameScreen extends Base2DScreen {
     Texture bg;
     TextureAtlas atlas;
 
-    BattleCruser battleCruser;
 
     Star[] star;
 
-    public GameScreen(Game game) {
+    MainShip mainShip;
 
+    BulletPool bulletPool;
+
+    public GameScreen(Game game) {
         super(game);
     }
 
     @Override
     public void show() {
         super.show();
-        bg = new Texture("space_background.jpg");
+        bg = new Texture("space_background.png");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
         star = new Star[STAR_COUNT];
         for (int i = 0; i < star.length; i++) {
             star[i] = new Star(atlas);
         }
-        TextureRegion region = new TextureRegion(atlas.findRegion("main_ship"));
-        int halfWidth = region.getRegionWidth()/2;
-        int height = region.getRegionHeight();
-        region = new TextureRegion(region, 0,0, halfWidth, height);
-        battleCruser = new BattleCruser(atlas, region, 0.2f);
+        bulletPool = new BulletPool();
+        mainShip = new MainShip(atlas, bulletPool);
     }
 
     @Override
@@ -61,7 +61,8 @@ public class GameScreen extends Base2DScreen {
         for (int i = 0; i < star.length; i++) {
             star[i].update(delta);
         }
-        battleCruser.update();
+        mainShip.update(delta);
+        bulletPool.updateActiveObjects(delta);
     }
 
     public void checkCollisions() {
@@ -69,7 +70,7 @@ public class GameScreen extends Base2DScreen {
     }
 
     public void deleteAllDestroyed() {
-
+        bulletPool.freeAllDestroyedActiveObjects();
     }
 
     public void draw() {
@@ -80,7 +81,8 @@ public class GameScreen extends Base2DScreen {
         for (int i = 0; i < star.length; i++) {
             star[i].draw(batch);
         }
-        battleCruser.draw(batch);
+        mainShip.draw(batch);
+        bulletPool.drawActiveObjects(batch);
         batch.end();
     }
 
@@ -88,36 +90,41 @@ public class GameScreen extends Base2DScreen {
     protected void resize(Rect worldBounds) {
         super.resize(worldBounds);
         background.resize(worldBounds);
-
         for (int i = 0; i < star.length; i++) {
             star[i].resize(worldBounds);
         }
-        battleCruser.resize(worldBounds);
+        mainShip.resize(worldBounds);
     }
 
     @Override
     public void dispose() {
         bg.dispose();
         atlas.dispose();
+        bulletPool.dispose();
         super.dispose();
     }
 
     @Override
-    public boolean touchDown(Vector2 touch, int pointer) {
-        battleCruser.touchDown(touch, pointer);
-        return true;
+    public boolean keyDown(int keycode) {
+        mainShip.keyDown(keycode);
+        return super.keyDown(keycode);
     }
 
+    @Override
+    public boolean keyUp(int keycode) {
+        mainShip.keyUp(keycode);
+        return super.keyUp(keycode);
+    }
+
+    @Override
+    public boolean touchDown(Vector2 touch, int pointer) {
+        mainShip.touchDown(touch, pointer);
+        return super.touchDown(touch, pointer);
+    }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-        battleCruser.touchUp(touch, pointer);
-        return true;
-    }
-
-    @Override
-    public boolean touchDragged(Vector2 touch, int pointer) {
-        battleCruser.touchDragged(touch, pointer);
-        return true;
+        mainShip.touchUp(touch, pointer);
+        return super.touchUp(touch, pointer);
     }
 }

@@ -1,9 +1,9 @@
 package ru.java.stargame.base;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
@@ -106,7 +106,7 @@ public class Base2DScreen implements Screen, InputProcessor {
 
     @Override
     public boolean keyTyped(char character) {
-       // System.out.println("keyTyped character = " + character);
+        System.out.println("keyTyped character = " + character);
         return false;
     }
 
@@ -118,7 +118,7 @@ public class Base2DScreen implements Screen, InputProcessor {
     }
 
     public boolean touchDown(Vector2 touch, int pointer) {
-        //System.out.println("touchDown touchX = " + touch.x + " touchY = "+ touch.y);
+        System.out.println("touchDown touchX = " + touch.x + " touchY = "+ touch.y);
         return false;
     }
 
@@ -130,33 +130,19 @@ public class Base2DScreen implements Screen, InputProcessor {
     }
 
     public boolean touchUp(Vector2 touch, int pointer) {
-        //System.out.println("touchDown touchX = " + touch.x + " touchY = "+ touch.y);
+        System.out.println("touchDown touchX = " + touch.x + " touchY = "+ touch.y);
         return false;
     }
-
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        touch.set(screenX, screenBounds.getHeight() - screenY).mul(screenToWorld);
-        touchDragged(touch, pointer);
-        return false;
-    }
-
-    public boolean touchDragged(Vector2 touch, int pointer) {
-//        System.out.println("touchDragged screenX = " + screenX + " screenY = "+ screenY);
+        System.out.println("touchDragged screenX = " + screenX + " screenY = "+ screenY);
         return false;
     }
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        touch.set(screenX, screenBounds.getHeight() - screenY).mul(screenToWorld);
-        mouseMoved(touch);
         return false;
-    }
-
-
-    public boolean mouseMoved(Vector2 touch) {
-         return false;
     }
 
     @Override
