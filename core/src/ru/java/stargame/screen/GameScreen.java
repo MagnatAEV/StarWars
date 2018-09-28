@@ -1,5 +1,4 @@
 package ru.java.stargame.screen;
-
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -8,51 +7,53 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
-import ru.java.stargame.base.ActionListener;
 import ru.java.stargame.base.Base2DScreen;
 import ru.java.stargame.math.Rect;
+import ru.java.stargame.pool.BulletPool;
 import ru.java.stargame.sprites.Background;
-import ru.java.stargame.sprites.ButtonExit;
-import ru.java.stargame.sprites.ButtonPlay;
+import ru.java.stargame.sprites.MainShip;
 import ru.java.stargame.sprites.Star;
 
 
-public class MenuScreen extends Base2DScreen implements ActionListener {
+public class GameScreen extends Base2DScreen {
 
-    private static final int STAR_COUNT = 256;
+    private static final int STAR_COUNT = 64;
 
     Background background;
     Texture bg;
     TextureAtlas atlas;
 
-    ButtonExit buttonExit;
-    ButtonPlay buttonPlay;
 
     Star[] star;
 
-    public MenuScreen(Game game) {
+    MainShip mainShip;
+
+    BulletPool bulletPool;
+
+    public GameScreen(Game game) {
         super(game);
     }
 
     @Override
     public void show() {
         super.show();
-        bg = new Texture("space_background.jpg");
+        bg = new Texture("space_background.png");
         background = new Background(new TextureRegion(bg));
-        atlas = new TextureAtlas("textures/menuAtlas.tpack");
-        buttonExit = new ButtonExit(atlas, this);
-        buttonPlay = new ButtonPlay(atlas, this);
+        atlas = new TextureAtlas("textures/mainAtlas.tpack");
         star = new Star[STAR_COUNT];
         for (int i = 0; i < star.length; i++) {
             star[i] = new Star(atlas);
         }
+        bulletPool = new BulletPool();
+        mainShip = new MainShip(atlas, bulletPool);
     }
-
 
     @Override
     public void render(float delta) {
         super.render(delta);
         update(delta);
+        checkCollisions();
+        deleteAllDestroyed();
         draw();
     }
 
@@ -60,6 +61,16 @@ public class MenuScreen extends Base2DScreen implements ActionListener {
         for (int i = 0; i < star.length; i++) {
             star[i].update(delta);
         }
+        mainShip.update(delta);
+        bulletPool.updateActiveObjects(delta);
+    }
+
+    public void checkCollisions() {
+
+    }
+
+    public void deleteAllDestroyed() {
+        bulletPool.freeAllDestroyedActiveObjects();
     }
 
     public void draw() {
@@ -70,50 +81,50 @@ public class MenuScreen extends Base2DScreen implements ActionListener {
         for (int i = 0; i < star.length; i++) {
             star[i].draw(batch);
         }
-        buttonExit.draw(batch);
-        buttonPlay.draw(batch);
+        mainShip.draw(batch);
+        bulletPool.drawActiveObjects(batch);
         batch.end();
     }
 
-
     @Override
     protected void resize(Rect worldBounds) {
+        super.resize(worldBounds);
         background.resize(worldBounds);
         for (int i = 0; i < star.length; i++) {
             star[i].resize(worldBounds);
         }
-        buttonExit.resize(worldBounds);
-        buttonPlay.resize(worldBounds);
+        mainShip.resize(worldBounds);
     }
 
     @Override
     public void dispose() {
         bg.dispose();
         atlas.dispose();
+        bulletPool.dispose();
         super.dispose();
     }
 
     @Override
+    public boolean keyDown(int keycode) {
+        mainShip.keyDown(keycode);
+        return super.keyDown(keycode);
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        mainShip.keyUp(keycode);
+        return super.keyUp(keycode);
+    }
+
+    @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        buttonExit.touchDown(touch, pointer);
-        buttonPlay.touchDown(touch, pointer);
+        mainShip.touchDown(touch, pointer);
         return super.touchDown(touch, pointer);
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-        buttonExit.touchUp(touch, pointer);
-        buttonPlay.touchUp(touch, pointer);
+        mainShip.touchUp(touch, pointer);
         return super.touchUp(touch, pointer);
     }
-
-    @Override
-    public void actionPerformed(Object src) {
-        if (src == buttonExit) {
-            Gdx.app.exit();
-        } else if (src == buttonPlay) {
-            game.setScreen(new GameScreen(game));
-        }
-    }
 }
-

@@ -4,54 +4,43 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
-import java.util.Arrays;
-
 import ru.java.stargame.math.Rect;
+import ru.java.stargame.utils.Regions;
 
 public class Sprite extends Rect {
 
-    protected  float angle;
+    protected float angle;
     protected float scale = 1f;
     protected TextureRegion[] regions;
+    protected int frame;
+    private boolean isDestroyed;
 
-    public int getFrame() {
-        return frame;
+    public Sprite() {
     }
 
-    public void setFrame(int frame) {
-        this.frame = frame;
-    }
-
-    private int frame;
-
-    public Sprite(TextureRegion[] regions) {
-        if (regions == null)
+    public Sprite(TextureRegion region) {
+        if (region == null) {
             throw new NullPointerException("region == null");
-        else {
-            int len = regions.length;
-            this.regions = new TextureRegion[len];
-            System.arraycopy(regions,0,this.regions,0,len);
         }
+        regions = new TextureRegion[1];
+        regions[0] = region;
     }
 
-    public void draw(SpriteBatch batch){
-        batch.draw(
-           regions[frame],
-           getLeft(), getBottom(), //точка отрисовки
-           halfWidth, halfHeight,  //точка вращения
-           getWidth(), getHeight(),
-           scale, scale, //масштаб по х и по y
-           angle     //угол поворота
-        );
+    public Sprite(TextureRegion region, int rows, int cols, int frames) {
+        this.regions = Regions.split(region, rows, cols, frames);
     }
 
-    public void setHeightProportion(float height){
+    public void setHeightProportion(float height) {
         setHeight(height);
-        float aspect = regions[frame].getRegionWidth()/(float) regions[frame].getRegionHeight();
-        setWidth(height*aspect);
+        float aspect = regions[frame].getRegionWidth() / (float) regions[frame].getRegionHeight();
+        setWidth(height * aspect);
     }
 
-    public void resize(Rect worldBounds){
+    public void resize(Rect worldBounds) {
+
+    }
+
+    public void update(float delta) {
 
     }
 
@@ -60,7 +49,7 @@ public class Sprite extends Rect {
         return false;
     }
 
-    public boolean update(float delta) {
+    public boolean touchUp(Vector2 touch, int pointer) {
 
         return false;
     }
@@ -81,10 +70,26 @@ public class Sprite extends Rect {
         this.scale = scale;
     }
 
-    public boolean touchUp(Vector2 touch, int pointer) {
-
-        return false;
+    public void draw(SpriteBatch batch) {
+        batch.draw(
+                regions[frame],
+                getLeft(), getBottom(), // точка отрисовки
+                halfWidth, halfHeight, // точка вращения
+                getWidth(), getHeight(),
+                scale, scale, // масштаб по x и y
+                angle // угол поворота
+        );
     }
 
+    public void destroy() {
+        this.isDestroyed = true;
+    }
 
+    public void flushDestroy() {
+        this.isDestroyed = false;
+    }
+
+    public boolean isDestroyed() {
+        return isDestroyed;
+    }
 }
