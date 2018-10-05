@@ -41,7 +41,7 @@ public class Bullet extends Sprite {
     @Override
     public void update(float delta) {
         this.pos.mulAdd(v, delta);
-        System.out.println("Bullet L: " + getLeft() + " R: " + getRight() + " T: " + getTop() + " B: " + getBottom());
+        //System.out.println("Bullet L: " + getLeft() + " R: " + getRight() + " T: " + getTop() + " B: " + getBottom());
         if (isOutside(worldBounds)) {
             destroy();
         }

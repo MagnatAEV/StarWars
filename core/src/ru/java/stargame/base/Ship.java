@@ -7,7 +7,9 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.java.stargame.math.Rect;
 import ru.java.stargame.pool.BulletPool;
+import ru.java.stargame.pool.ExplosionPool;
 import ru.java.stargame.sprites.Bullet;
+import ru.java.stargame.sprites.Explosion;
 
 public class Ship extends Sprite {
 
@@ -17,30 +19,43 @@ public class Ship extends Sprite {
 
     protected Vector2 bulletV = new Vector2();
     protected BulletPool bulletPool;
+    protected ExplosionPool explosionPool;
     protected TextureRegion bulletRegion;
     protected float bulletHeight;
     protected int bulletDamage;
 
-    protected Sound shootSound;
-    protected Sound boomSound;
+    private Sound shootSound;
 
     protected float reloadInterval;
     protected float reloadTimer;
 
+    protected float damageAnimateInterval = 0.1f;
+    protected float damageAnimateTimer;
+
     protected int hp;
 
-    public Ship(TextureRegion region, int rows, int cols, int frames, BulletPool bulletPool, Sound shootSound) {
+    public Ship(TextureRegion region, int rows, int cols, int frames, BulletPool bulletPool, ExplosionPool explosionPool, Sound shootSound) {
         super(region, rows, cols, frames);
         this.bulletPool = bulletPool;
         this.shootSound = shootSound;
         this.bulletHeight = 0.01f;
         this.bulletDamage = 1;
+        this.explosionPool = explosionPool;
     }
 
-    public Ship(TextureRegion region, BulletPool bulletPool, Sound shootSound) {
-        this.bulletRegion = region;
+    public Ship(BulletPool bulletPool, ExplosionPool explosionPool, Sound shootSound) {
         this.bulletPool = bulletPool;
         this.shootSound = shootSound;
+        this.explosionPool = explosionPool;
+    }
+
+    @Override
+    public void update(float delta) {
+        super.update(delta);
+        damageAnimateTimer += delta;
+        if (damageAnimateTimer >= damageAnimateInterval) {
+            frame = 0;
+        }
     }
 
     @Override
@@ -52,5 +67,30 @@ public class Ship extends Sprite {
         Bullet bullet = bulletPool.obtain();
         bullet.set(this, bulletRegion, pos, bulletV, bulletHeight, worldBounds, bulletDamage);
         shootSound.play();
+    }
+
+    public void boom() {
+        Explosion explosion = explosionPool.obtain();
+        explosion.set(getHeight(), pos);
+        hp = 0;
+    }
+
+    public int getHp() {
+        return hp;
+    }
+
+
+    public void damage(int damage) {
+        frame = 1;
+        damageAnimateTimer = 0f;
+        hp -= damage;
+        if (hp <= 0) {
+            boom();
+            destroy();
+        }
+    }
+
+    public int getBulletDamage() {
+        return bulletDamage;
     }
 }

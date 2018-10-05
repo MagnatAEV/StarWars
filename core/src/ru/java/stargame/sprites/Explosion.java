@@ -10,16 +10,18 @@ public class Explosion extends Sprite {
 
     private float animateInterval = 0.017f;
     private float animateTimer;
-    private Sound soundBoom;
 
-    public Explosion(TextureRegion region, int rows, int cols, int frames) {
+    private Sound explosionSound;
+
+    public Explosion(TextureRegion region, int rows, int cols, int frames, Sound explosionSound) {
         super(region, rows, cols, frames);
+        this.explosionSound = explosionSound;
     }
 
-    public void set(float height, Vector2 pos, Sound soundBoom) {
+    public void set(float height, Vector2 pos) {
         this.pos.set(pos);
-        this.soundBoom = soundBoom;
         setHeightProportion(height);
+        explosionSound.play();
     }
 
     @Override
@@ -37,9 +39,5 @@ public class Explosion extends Sprite {
     public void destroy() {
         super.destroy();
         frame = 0;
-    }
-
-    public void play(){
-        soundBoom.play();
     }
 }
