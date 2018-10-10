@@ -1,59 +1,57 @@
 package ru.java.stargame.sprites;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 
-import ru.java.stargame.base.Sprite;
+import ru.java.stargame.base.Ship;
 import ru.java.stargame.math.Rect;
 import ru.java.stargame.pool.BulletPool;
+import ru.java.stargame.pool.ExplosionPool;
 
 
-public class MainShip extends Sprite {
+public class MainShip extends Ship {
 
     private static final int INVALID_POINTER = -1;
 
     private Vector2 v0 = new Vector2(0.5f, 0f);
-    private Vector2 v = new Vector2();
-    private Vector2 bulletV = new Vector2(0, 0.92f);
 
     private boolean pressedLeft;
     private boolean pressedRight;
 
-    private Rect worldBounds;
-
-    private BulletPool bulletPool;
-    private TextureRegion bulletRegion;
-
-    private Sound soundShoot;
-    private Music backgorundMusic;
-
     private int leftPointer = INVALID_POINTER;
     private int rightPointer = INVALID_POINTER;
+    private boolean isNewGame = false;
 
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool) {
-        super(atlas.findRegion("main_ship"), 1, 2, 2);
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool, Sound shootSound) {
+        super(atlas.findRegion("main_ship"), 1, 2, 2, bulletPool, explosionPool, shootSound);
         this.bulletRegion = atlas.findRegion("bulletMainShip");
+        startNewGame();
+    }
+
+    public void startNewGame() {
+        this.bulletHeight = 0.01f;
+        this.bulletDamage = 1;
+        this.bulletV.set(0, 0.5f);
+        this.reloadInterval = 0.2f;
+        this.hp = 1;
+        this.isNewGame = true;
         setHeightProportion(0.15f);
-        this.bulletPool = bulletPool;
-//        альтернатива разбиения текстур на регионы
-//        TextureRegion region = atlas.findRegion("main_ship");
-//        region.split()
-        backgorundMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/backgroundMusic.mp3"));
-        backgorundMusic.setVolume(0.5f);
-        backgorundMusic.play();
-        backgorundMusic.setLooping(true);
-        soundShoot = Gdx.audio.newSound(Gdx.files.internal("sounds/gun15.mp3"));
+        flushDestroy();
     }
 
     @Override
     public void update(float delta) {
+        super.update(delta);
         pos.mulAdd(v, delta);
+        reloadTimer += delta;
+        if (reloadTimer >= reloadInterval) {
+            reloadTimer = 0f;
+            shoot();
+        }
         if (getRight() > worldBounds.getRight()) {
             setRight(worldBounds.getRight());
             stop();
@@ -62,11 +60,15 @@ public class MainShip extends Sprite {
             setLeft(worldBounds.getLeft());
             stop();
         }
+        if (isNewGame) {
+            this.pos.x = 0;
+            this.isNewGame = false;
+        }
     }
 
     @Override
     public void resize(Rect worldBounds) {
-        this.worldBounds = worldBounds;
+        super.resize(worldBounds);
         setBottom(worldBounds.getBottom() + 0.05f);
     }
 
@@ -81,9 +83,6 @@ public class MainShip extends Sprite {
             case Input.Keys.RIGHT:
                 pressedRight = true;
                 moveRight();
-                break;
-            case Input.Keys.UP:
-                shoot();
                 break;
         }
     }
@@ -157,17 +156,13 @@ public class MainShip extends Sprite {
         v.setZero();
     }
 
-    public void shoot() {
-        Bullet bullet = bulletPool.obtain();
-        bullet.set(this, bulletRegion, pos, bulletV, 0.015f, worldBounds, 1);
-        soundShoot.play(1f);
-
-    }
-
-
-    public void  dispose(){
-        soundShoot.dispose();
-        backgorundMusic.dispose();
+    public boolean isBulletCollision(Rect bullet) {
+        return !(
+                bullet.getRight() < getLeft()
+                        || bullet.getLeft() > getRight()
+                        || bullet.getBottom() > pos.y
+                        || bullet.getTop() < getBottom()
+        );
     }
 
 }
